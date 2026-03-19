@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Places on Earth That Don't Feel Real</title>
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#0b1020;
+      --accent:#ffffff;
+      --radius:50px;
+      --max-width:1600px;
+    }
+    *{box-sizing:border-box}
+    html{font-size:20px}
+    html,body{height:auto}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #ffffff;
+      color:#000000;
+      animation: none;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      min-height:100vh;
+    }
+    
+    .top-nav{
+      width:100%;
+      background:#ffffff;
+      border-bottom:1px solid #e0e0e0;
+      padding:16px 24px;
+      display:flex;
+      gap:32px;
+      justify-content:flex-start;
+      align-items:center;
+      position:relative;
+    }
+    
+    .nav-center{
+      flex:1;
+      display:flex;
+      gap:32px;
+      justify-content:center;
+    }
+    
+    .search-bar{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-left:auto;
+    }
+    
+    .search-bar input{
+      padding:8px 12px;
+      border:1px solid #ccc;
+      border-radius:4px;
+      font-size:0.95rem;
+      width:200px;
+      transition:border-color .2s ease;
+    }
+    
+    .search-bar input:focus{
+      outline:none;
+      border-color:#447abd;
+      box-shadow:0 0 0 2px rgba(68,120,189,0.1);
+    }
+    
+    .search-bar button{
+      padding:8px 16px;
+      background:#447abd;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      font-weight:700;
+      transition:background .2s ease;
+    }
+    
+    .search-bar button:hover{
+      background:#2d5a8c;
+    }
+    
+    .nav-item{
+      position:relative;
+      display:flex;
+      align-items:center;
+    }
+    
+    .nav-item > a{
+      text-decoration:none;
+      color:#000000;
+      font-weight:700;
+      font-size:1rem;
+      cursor:pointer;
+      transition:color .2s ease;
+      padding:8px 12px;
+      border-radius:4px;
+    }
+    
+    .nav-item > a:hover{
+      color:#447abd;
+    }
+    
+    .nav-item.active > a{
+      background:#e8f1f8;
+      color:#447abd;
+    }
+    
+    .page{
+      display:none;
+    }
+    
+    .page.active{
+      display:block;
+    }
+    
+    .main-container{
+      padding:48px 24px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      flex:1;
+      width:100%;
+    }
+    
+    .header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .logo{width:64px;height:64px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;color:#042028;font-weight:700}
+    .header .photo{width:200px;height:200px;margin:0;flex-shrink:0;object-fit:cover;border-radius:10px}
+    h1{margin:0;font-size:clamp(1.6rem,3vw,2.6rem);letter-spacing:0.6px}
+    .description{margin:8px 0 20px 0;color:#cfe9f8;opacity:0.95;font-size:1rem;line-height:1.3}
+
+    .grid{display:grid;grid-template-columns: repeat(3, 1fr);gap:12px}
+
+    /* layout for sidebar + main content */
+    .layout{display:flex;gap:24px}
+    .sidebar{flex:0 0 250px;display:none}
+    .content{flex:1}
+    .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:0;border-radius:var(--radius);transition:transform .28s ease, box-shadow .28s ease;border:1px solid rgba(255,255,255,0.04);overflow:hidden}
+    .card:hover{transform: translateY(-6px) scale(1.01);box-shadow: 0 18px 40px rgba(2,6,23,0.6)}
+    /* larger card images */
+    .photo{width:100%;height:360px;object-fit:cover;display:block;margin:0;filter:contrast(1.02) saturate(1.08);transition:filter .3s ease, transform .3s ease}
+    /* Card headings/subtitles: centered and uniform for all cards */
+    /* slightly smaller titles/subtitles so images read as larger */
+    .place-title{margin:0;font-weight:700;font-size:1.35rem;padding:12px 16px 0 16px;text-align:center}
+    .place-sub{margin:4px 0 0 0;color:#9ecbe7;font-size:1rem;padding:6px 16px 12px 16px;text-align:center}
+    /* Also apply to any h3/p inside .card so malformed tags still become uniform */
+    .card h3{margin:0;font-weight:700;font-size:1.35rem;padding:12px 16px 0 16px;text-align:center}
+    .card p{margin:4px 0 12px 0;color:#000000;font-size:1rem;padding:0 16px;text-align:center} /* PNG text black */
+    .photo:hover{transform:scale(1.02);filter:brightness(1.03) saturate(1.08)}
+
+    .places{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+    .places strong{font-size:1.05rem}
+    .places .place-item > div > div{font-size:0.98rem}
+    .place-item{display:flex;gap:12px;align-items:flex-start}
+    .index{color:#000000;font-weight:700;min-width:28px;height:28px;display:inline-grid;place-items:center;background:linear-gradient(180deg, rgba(125,211,252,0.12), rgba(96,165,250,0.08));border-radius:8px}
+
+    /* places list dropdown details */
+    .place-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    /* sidebar dropdown details */
+    .sidebar-info details{margin-bottom:8px;}
+    /* allow open home section by default */
+    #home[open] .home-content{display:block;}
+    .sidebar-info summary{cursor:pointer; font-weight:700; padding:4px;}
+    .sidebar-info details[open] summary{color:#447abd;}
+
+    /* home details extras */
+    .home-content{padding:6px 0;}
+    .home-content .photo{width:100%;height:auto;border-radius:6px;margin-bottom:8px;}
+    .search-form{display:flex;gap:4px;margin:8px 0;}
+    .search-form input[type=search]{flex:1;padding:4px 8px;border:1px solid #ccc;border-radius:4px;}
+    .search-form button{padding:4px 10px;border:1px solid #447abd;background:#447abd;color:#fff;border-radius:4px;cursor:pointer;}
+    .toggle-details{background:transparent;border:0;color:#000000;font-size:1.02rem;padding:6px 8px;border-radius:6px;cursor:pointer} /* arrow black */
+    .toggle-details:focus{outline:2px solid rgba(125,211,252,0.2);outline-offset:2px}
+    .details{overflow:hidden;max-height:0;transition:max-height .28s ease,padding .28s ease;color:#cfe9f8}
+    .details.open{padding:8px 0 12px 0;max-height:240px}
+    .details p{margin:0;font-size:0.95rem;color:#0d0d0e}
+
+    @media (max-width:420px){
+      /* mobile: keep images larger but proportional */
+      .photo{height:0px}
+      .header .photo{width:140px;height:140px}
+      html{font-size:16px}
+      .main-container{padding:18px}
+
+      h1{font-size:1.6rem}
+      .place-title{font-size:1.15rem}
+      .place-sub{font-size:0.95rem}
+
+      /* responsive adjustments */
+      .grid{grid-template-columns:1fr}
+      .layout{flex-direction:column}
+      .places{grid-template-columns:1fr}
+      
+      .top-nav{
+        gap:16px;
+        flex-wrap:wrap;
+      }
+      
+      .nav-center{
+        flex-basis:100%;
+        justify-content:flex-start;
+      }
+      
+      .search-bar{
+        flex-basis:100%;
+      }
+      
+      .search-bar input{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-center">
+    <div class="nav-item active" data-page="home">
+      <a href="#home">Home</a>
+    </div>
+    <div class="nav-item" data-page="about">
+      <a href="#about">About</a>
+    </div>
+    <div class="nav-item" data-page="contact">
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="search" placeholder="Search places…" id="search-input" aria-label="Search places">
+    <button id="search-btn">Search</button>
+  </div>
+</nav>
+<div class="main-container">
+<main class="container">
+
+<!-- HOME PAGE -->
+<div id="home" class="page active">
+    <div class="layout">
+    <div class="content">
+    <div class="header">
+  
+      <img src="img1.jpg" class="photo">
+      <div>
+        <h1>Papua New Guinea</h1>
+        <p>PNG Horizons</p>
+      </div>
+    </div>
+
+<div>
+<h2>Highlands Region</h2>
+<div class="grid">
+<article class="card">
+<img src="img119.jpg" class="photo">
+<h3>Simbu Province</h3>
+<p>Mount Giluwe</p>
+</article>
+<article class="card">
+<img src="img112.jpg" class="photo">
+<h3>Eastern Highlands Province</h3>
+<p></p>
+</article>
+<article class="card">
+<img src="img123.jpg" class="photo">
+<h3>Enga Province</h3>
+<p>PNG</p>
+</article>
+<article class="card">
+<img src="img106.jpg" class="photo">
+<h3>Hela Province</h3>
+<p>PNG</p>
+</article>
+<article class="card">
+<img src="img126.jpg" class="photo">
+<h3>Jiwaka Province</h3>
+<p>Komblo Waterfall</p>
+</article>
+<article class="card">
+<img src="img125.jpg" class="photo">
+<h3>Southern Highlands Province</h3>
+<p>Lake Kutubu</p>
+</article>
+<article class="card">
+<img src="img1127.jpg" class="photo">
+<h3>Western Highlands Province</h3>
+<p>Wahgi River</p>
+</article>
+</div>
+<h2>Islands Region</h2>
+<div class="grid">
+<article class="card">
+<img src="img102.jpg" class="photo">
+<h3>Manus Province</h3>
+<p>PNG</p>
+</article>
+<article class="card">
+<img src="img120.jpg" class="photo">
+<h3>New Ireland Province</h3>
+<p>Belifu Canyon</p>
+</article>
+<article class="card">
+<img src="img114.jpg" class="photo">
+<h3>East New Britain Province</h3>
+<p>Doy Island</p>
+</article>
+<article class="card">
+<img src="img117.jpg" class="photo">
+<h3>West New Britain Province</h3>
+<p>Oil Palm</p>
+</article>
+<article class="card">
+<img src="img118.jpg" class="photo">
+<h3>Autonomous Region of Bougainville</h3>
+<p>Living Root Bridge.</p>
+</article>
+</div>
+<h2>Momase Region</h2>
+<div class="grid">
+<article class="card">
+<img src="img101.jpg" class="photo">
+<h3>Madang Province</h3>
+<p>Balek Beach</p>
+</article>
+<article class="card">
+<img src="img3.jpg" class="photo">
+<h3>Morobe Province</h3>
+<p>Butaweng waterfalls</p>
+</article>
+<article class="card">
+<img src="img134.jpg" class="photo">
+<h3>Oro Province</h3>
+<p>Tufi Dive</p>
+</article>
+<article class="card">
+<img src="img128.jpg" class="photo">
+<h3>East Sepik Province</h3>
+<p>Wom Beach</p>
+</article>
+<article class="card">
+<img src="img115.jpg" class="photo">
+<h3>West Sepik Province</h3>
+<p>Awawi Falls</p>
+</article>
+</div>
+<h2>Southern Region</h2>
+<div class="grid">
+<article class="card">
+<img src="img107.jpg" class="photo">
+<h3>Central Province</h3>
+<p>PNG</p>
+</article>
+<article class="card">
+<img src="img 130.jpg" class="photo">
+<h3>Gulf Province</h3>
+<p>Orokolo Bay</p>
+</article>
+<article class="card">
+<img src="img131.jpg" class="photo">
+<h3>Milne Bay Province</h3>
+<p>Kwato island </p>
+</article>
+<article class="card">
+<img src="img122.jpg" class="photo">
+<h3>Western Province</h3>
+<p>Wawi Falls</p>
+</article>
+</div>
+<h2>National Capital District</h2>
+<div class="grid">
+<article class="card">
+<img src="img129.jpg" class="photo">
+<h3>National Capital District</h3>
+<p>Port Moresby City</p>
+</article>
+</div>
+</div>
+
+
+   
+
+    <!-- additional paragraphs about PNG -->
+    <section class="png-info" style="margin-top:24px;line-height:1.4;">
+      <h2 style="margin-bottom:12px;">About Papua New Guinea</h2>
+      <p>Papua New Guinea is home to an incredible diversity of ecosystems, from the dense rainforests of the highlands to the coral-rich lagoons of the islands. This biodiversity supports thousands of plant and animal species, many of which are found nowhere else on Earth.</p>
+      <p>The nation is equally rich in cultural variety; over 800 languages are spoken, and communities maintain traditions that date back millennia. Visitors often experience a warm sense of hospitality and a deep connection to ancestral land and customary law.</p>
+      <p>Despite its natural wealth, PNG faces challenges such as infrastructure development and balancing modernization with environmental conservation. Efforts are underway to promote sustainable tourism and protect fragile habitats while improving local livelihoods.</p>
+    </section>
+    </div>
+    </div>
+</div>
+<!-- END HOME PAGE -->
+
+<!-- ABOUT PAGE -->
+<div id="about" class="page">
+  <div class="layout">
+    <div class="content">
+      <div class="header">
+        <div>
+          <h1>About</h1>
+          <p>Learn more about this project and the creator.</p>
+        </div>
+      </div>
+      <div style="max-width:800px;margin-top:32px;line-height:1.6;">
+        <h2>About This Project</h2>
+        <p>This website is a demonstration of modern HTML/CSS design created as a portfolio project. It showcases the incredible landscapes and cultural richness of Papua New Guinea through a clean, interactive interface.</p>
+        
+        <h2 style="margin-top:32px;">About Papua New Guinea</h2>
+        <p>Papua New Guinea (PNG) is one of the most diverse countries on Earth. Home to stunning natural landscapes and vibrant cultures, PNG offers visitors a unique window into a world of extraordinary beauty and complexity.</p>
+        <p>From the highlands to the islands, PNG features some of the most unique ecosystems and cultures anywhere in the world. With over 800 languages and countless distinct ethnic groups, PNG represents one of humanity's greatest cultural treasures.</p>
+        
+        <h2 style="margin-top:32px;">Creator</h2>
+        <p><strong>Leah Taiap</strong> - Created this simple HTML/CSS demonstration to showcase web design skills and passion for multimedia storytelling. This project combines design, information architecture, and web development.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END ABOUT PAGE -->
+
+<!-- CONTACT PAGE -->
+<div id="contact" class="page">
+  <div class="layout">
+    <div class="content">
+      <div class="header">
+        <div>
+          <h1>Contact</h1>
+          <p>Get in touch with us.</p>
+        </div>
+      </div>
+      <div style="max-width:800px;margin-top:32px;">
+        <h2>Contact Information</h2>
+        <p>We'd love to hear from you. Whether you have questions about the site, want to share feedback, or just want to connect, feel free to reach out.</p>
+        
+        <div style="margin-top:32px;padding:24px;background:#f5f5f5;border-radius:8px;">
+          <h3 style="margin-top:0;">Email</h3>
+          <p><a href="mailto:ltnicole@gmail.com" style="color:#447abd;text-decoration:none;font-weight:700;">ltnicole@gmail.com</a></p>
+          
+          <h3 style="margin-top:24px;">Get in Touch</h3>
+          <p>Send us an email with your name and message, and we'll get back to you as soon as possible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END CONTACT PAGE -->
+
+</main>
+</div>
+
+  <script>
+  // Page navigation
+  (function(){
+    var navItems = document.querySelectorAll('.nav-item');
+    var pages = document.querySelectorAll('.page');
+    
+    navItems.forEach(function(item) {
+      var link = item.querySelector('a');
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var pageName = item.getAttribute('data-page');
+        
+        // Hide all pages and deactivate all nav items
+        pages.forEach(function(page) {
+          page.classList.remove('active');
+        });
+        navItems.forEach(function(navItem) {
+          navItem.classList.remove('active');
+        });
+        
+        // Show selected page and activate nav item
+        document.getElementById(pageName).classList.add('active');
+        item.classList.add('active');
+      });
+    });
+  })();
+
+  // Search functionality
+  (function(){
+    var searchInput = document.getElementById('search-input');
+    var searchBtn = document.getElementById('search-btn');
+    var cards = document.querySelectorAll('.grid .card');
+    
+    function performSearch(){
+      var query = searchInput.value.toLowerCase();
+      
+      cards.forEach(function(card) {
+        var title = card.querySelector('h3').textContent.toLowerCase();
+        if (query === '' || title.includes(query)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+    
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+    
+    searchInput.addEventListener('input', performSearch);
+  })();
+
+  // Dropdown controller for places list — accessible toggles
+  (function(){
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function openDetails(btn, details){
+      btn.setAttribute('aria-expanded','true');
+      details.hidden = false;
+      // trigger transition by forcing computed height if not reduced motion
+      if (!prefersReduced){
+        details.classList.add('open');
+      }
+    }
+    function closeDetails(btn, details){
+      btn.setAttribute('aria-expanded','false');
+      if (!prefersReduced){
+        details.classList.remove('open');
+        // after transition end, set hidden to true
+        var onEnd = function(){ details.hidden = true; details.removeEventListener('transitionend', onEnd); };
+        details.addEventListener('transitionend', onEnd);
+      } else {
+        details.hidden = true;
+      }
+    }
+
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest && e.target.closest('.toggle-details');
+      if (!btn) return;
+      var id = btn.getAttribute('aria-controls');
+      var details = document.getElementById(id);
+      if (!details) return;
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      if (expanded) closeDetails(btn, details); else openDetails(btn, details);
+    });
+
+    // keyboard: Enter/Space on button handled by default; ESC closes all
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' || e.key === 'Esc'){
+        document.querySelectorAll('.toggle-details[aria-expanded="true"]').forEach(function(b){
+          var id = b.getAttribute('aria-controls');
+          var d = document.getElementById(id);
+          if (d) closeDetails(b,d);
+        });
+      }
+    });
+  })();
+
+  // simple search implementation for cards and list
+  (function(){
+    var form = document.querySelector('.search-form');
+    if (!form) return;
+    var cards = Array.from(document.querySelectorAll('.grid .card'));
+    var listItems = Array.from(document.querySelectorAll('.places .place-item'));
+    function filter(query){
+      var q = query.trim().toLowerCase();
+      cards.forEach(function(card){
+        var text = card.textContent.toLowerCase();
+        card.style.display = q && text.indexOf(q) === -1 ? 'none' : '';
+      });
+      listItems.forEach(function(li){
+        var text = li.textContent.toLowerCase();
+        li.style.display = q && text.indexOf(q) === -1 ? 'none' : '';
+      });
+    }
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var input = form.querySelector('input[type=search]');
+      if (input) filter(input.value);
+    });
+    // live filtering while typing
+    var input = form.querySelector('input[type=search]');
+    if (input){
+      input.addEventListener('input', function(){ filter(input.value); });
+    }
+  })();
+  </script>
+
+</body></html>
